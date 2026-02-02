@@ -19,4 +19,11 @@ class ThemeNotifier extends Notifier<ThemeMode> {
     settings.save();
     state = settings.isDarkMode ? ThemeMode.dark : ThemeMode.light;
   }
+
+  void setThemeMode(ThemeMode mode) {
+    final settings = HiveService.getSettings();
+    settings.isDarkMode = mode == ThemeMode.dark;
+    settings.save();
+    state = mode;
+  }
 }

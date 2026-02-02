@@ -23,7 +23,7 @@ class _MpusAnimationState extends State<MpusAnimation> {
   SMIBool? _isBreakInput;
   SMITrigger? _levelCompleteTrigger;
 
-  void _onRiveInit(Artboard artboard) {
+  /* void _onRiveInit(Artboard artboard) {
     final controller = StateMachineController.fromArtboard(
       artboard,
       'State Machine 1',
@@ -37,7 +37,7 @@ class _MpusAnimationState extends State<MpusAnimation> {
 
       _updateInputs();
     }
-  }
+  } */
 
   void _updateInputs() {
     _isWorkingInput?.value = widget.isWorking;
@@ -66,12 +66,13 @@ class _MpusAnimationState extends State<MpusAnimation> {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: RiveAnimation.asset(
+      /* RiveAnimation.asset(
         'assets/animations/pomonya.riv',
         fit: BoxFit.contain,
         onInit: _onRiveInit,
         placeHolder: _buildPlaceholder(),
-      ),
+      ), */
+      child: _buildPlaceholder(),
     );
   }
 

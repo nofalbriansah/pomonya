@@ -7,14 +7,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.deepBackground,
+      scaffoldBackgroundColor: AppColors.darkBg,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.electricBlue,
         secondary: AppColors.neonFuchsia,
         surface: AppColors.surfaceDark,
         onSurface: AppColors.textPrimary,
+        tertiary: AppColors.neonPink,
       ),
-      fontFamily: GoogleFonts.lexend().fontFamily,
+      fontFamily: GoogleFonts.spaceGrotesk().fontFamily,
       textTheme: TextTheme(
         displayLarge: GoogleFonts.pressStart2p(
           color: AppColors.textPrimary,
@@ -24,13 +25,25 @@ class AppTheme {
           color: AppColors.textPrimary,
           fontSize: 20,
         ),
-        bodyLarge: GoogleFonts.lexend(
+        displaySmall: GoogleFonts.pressStart2p(
+          color: AppColors.textPrimary,
+          fontSize: 14,
+        ),
+        bodyLarge: GoogleFonts.spaceGrotesk(
           color: AppColors.textPrimary,
           fontSize: 16,
         ),
-        bodyMedium: GoogleFonts.lexend(
+        bodyMedium: GoogleFonts.spaceGrotesk(
           color: AppColors.textSecondary,
           fontSize: 14,
+        ),
+        bodySmall: GoogleFonts.spaceGrotesk(
+          color: AppColors.textSecondary,
+          fontSize: 12,
+        ),
+        labelLarge: GoogleFonts.pressStart2p(
+          color: AppColors.textPrimary,
+          fontSize: 10,
         ),
       ),
       cardTheme: CardThemeData(

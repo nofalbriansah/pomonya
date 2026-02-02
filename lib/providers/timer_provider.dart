@@ -96,6 +96,15 @@ class TimerNotifier extends Notifier<TimerState> {
     );
   }
 
+  void setDuration(int duration) {
+    _ticker?.cancel();
+    state = state.copyWith(
+      status: TimerStatus.initial,
+      remainingSeconds: duration,
+      initialDuration: duration,
+    );
+  }
+
   void skip() {
     _ticker?.cancel();
     _advancePhase();

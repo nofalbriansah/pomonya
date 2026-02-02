@@ -1,24 +1,25 @@
 import 'dart:ui';
 
 class AppColors {
-  // Deep Background: #0B0E14
-  static const Color deepBackground = Color(0xFF0B0E14);
-
-  // Surface Dark: #161B28
-  static const Color surfaceDark = Color(0xFF161B28);
-
-  // Electric Blue: #00F0FF (Primary)
+  // Primary / Neon Colors
+  static const Color primary = Color(0xFF00F0FF); // Electric Blue
   static const Color electricBlue = Color(0xFF00F0FF);
+  static const Color neonFuchsia = Color(0xFFF0ABFC); // Accent
+  static const Color neonPink = Color(0xFFD946EF);
 
-  // Neon Fuchsia: #F0ABFC (Accent)
-  static const Color neonFuchsia = Color(0xFFF0ABFC);
+  // Backgrounds
+  static const Color darkBg = Color(0xFF0B0E14); // Deep Charcoal / Navy
+  static const Color deepBackground = Color(0xFF0B0E14);
+  static const Color surfaceDark = Color(
+    0xFF161B28,
+  ); // Slightly lighter for panels
 
-  // Glass Border: rgba(255,255,255,0.08)
-  static const Color glassBorder = Color(0x14FFFFFF);
-
-  // Text Colors
+  // Utility
+  static const Color glassBorder = Color(
+    0x14FFFFFF,
+  ); // rgba(255, 255, 255, 0.08)
   static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xB3FFFFFF);
+  static const Color textSecondary = Color(0xB3FFFFFF); // ~70% opacity
 }
 
 class AppConstants {
