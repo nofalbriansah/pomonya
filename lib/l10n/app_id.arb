@@ -1,0 +1,44 @@
+{
+  "@@locale": "id",
+  "appTitle": "Pomonya",
+  "homeStatusFocus": "SESI FOKUS",
+  "homeStatusShortBreak": "ISTIRAHAT PENDEK",
+  "homeStatusLongBreak": "ISTIRAHAT PANJANG",
+  "homeActionFocus": "MISI FOKUS",
+  "homeActionBreak": "JEDA GAME",
+  "homeActionSleep": "TIDUR EPIK",
+  "navHome": "BERANDA",
+  "navShop": "TOKO",
+  "navStats": "STATISTIK",
+  "navSettings": "PENGATURAN",
+  "shopTitle": "TOKO ARKADE",
+  "shopUnlockItem": "BUKA ITEM?",
+  "shopCost": "Biaya: {price} Permata",
+  "@shopCost": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "shopCancel": "BATAL",
+  "shopBuy": "BELI",
+  "shopNotEnoughGems": "Permata tidak cukup!",
+  "statsTitle": "DATA PRODUKTIVITAS",
+  "statsTotalProductivity": "TOTAL PRODUKTIVITAS",
+  "statsExportData": "EKSPOR DATA",
+  "statsDataExported": "Data disalin ke papan klip!",
+  "settingsTitle": "KONFIGURASI SISTEM",
+  "settingsFocus": "FOKUS",
+  "settingsShortBreak": "ISTIRAHAT P.",
+  "settingsLongBreak": "ISTIRAHAT L.",
+  "settingsAutoQuest": "Auto-Quest",
+  "settingsAutoQuestDesc": "Mulai misi otomatis",
+  "settingsTheme": "TEMA",
+  "settingsThemeDark": "GELAP",
+  "settingsThemeLight": "TERANG",
+  "settingsSound": "SOUND FX",
+  "settingsLanguage": "BAHASA",
+  "settingsLanguageEn": "INGGRIS",
+  "settingsLanguageId": "INDONESIA"
+}

@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/constants.dart';
+import 'package:pomonya/l10n/generated/app_localizations.dart';
 
 class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key, required this.navigationShell});
@@ -11,15 +11,21 @@ class MainNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: navigationShell,
-      bottomNavigationBar: _buildGlassBottomNav(context),
+      bottomNavigationBar: _buildGlassBottomNav(context, theme, l10n),
     );
   }
 
-  Widget _buildGlassBottomNav(BuildContext context) {
+  Widget _buildGlassBottomNav(
+    BuildContext context,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     return Container(
       height: 100, // Includes content + safe area padding
       decoration: BoxDecoration(
@@ -27,11 +33,13 @@ class MainNavigation extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.surfaceDark.withOpacity(0.8),
-            AppColors.surfaceDark,
+            theme.colorScheme.surfaceContainer.withOpacity(0.8),
+            theme.colorScheme.surfaceContainer,
           ],
         ),
-        border: const Border(top: BorderSide(color: AppColors.glassBorder)),
+        border: Border(
+          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+        ), // gentle border
       ),
       child: ClipRect(
         child: BackdropFilter(
@@ -45,29 +53,33 @@ class MainNavigation extends StatelessWidget {
                   context,
                   0,
                   Icons.home_rounded,
-                  'Home',
+                  l10n.navHome,
                   Colors.greenAccent,
+                  theme,
                 ),
                 _buildNavItem(
                   context,
                   1,
                   Icons.storefront_rounded,
-                  'Shop',
+                  l10n.navShop,
                   Colors.blueAccent,
+                  theme,
                 ),
                 _buildNavItem(
                   context,
                   2,
                   Icons.leaderboard_rounded,
-                  'Stats',
+                  l10n.navStats,
                   Colors.amberAccent,
+                  theme,
                 ),
                 _buildNavItem(
                   context,
                   3,
                   Icons.settings_rounded,
-                  'Config',
+                  l10n.navSettings,
                   Colors.purpleAccent,
+                  theme,
                 ),
               ],
             ),
@@ -83,10 +95,14 @@ class MainNavigation extends StatelessWidget {
     IconData icon,
     String label,
     Color color,
+    ThemeData theme,
   ) {
     final isSelected = navigationShell.currentIndex == index;
     final activeColor = color;
-    final inactiveColor = Colors.grey.withOpacity(0.5);
+    // Adapt inactive color based on theme brightness
+    final inactiveColor = theme.brightness == Brightness.dark
+        ? Colors.grey.withOpacity(0.5)
+        : Colors.grey.shade600;
 
     return GestureDetector(
       onTap: () {
@@ -129,6 +145,9 @@ class MainNavigation extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.pressStart2p(
                 fontSize: 8,
                 color: isSelected ? activeColor : inactiveColor,

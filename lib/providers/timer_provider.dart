@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/hive_service.dart';
+import '../data/database_service.dart';
 import '../core/audio_service.dart';
 import 'currency_provider.dart';
+import 'settings_provider.dart';
 
 enum TimerStatus { initial, running, paused, finished }
 
@@ -40,17 +41,16 @@ class TimerState {
   }
 }
 
-final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
+final timerProvider = AsyncNotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,
 );
 
-class TimerNotifier extends Notifier<TimerState> {
+class TimerNotifier extends AsyncNotifier<TimerState> {
   Timer? _ticker;
 
   @override
-  TimerState build() {
-    // We can't easily call _loadSettings here because it returns a value
-    final settings = HiveService.getSettings();
+  Future<TimerState> build() async {
+    final settings = await ref.watch(settingsProvider.future);
     return TimerState(
       remainingSeconds: settings.focusDuration,
       initialDuration: settings.focusDuration,
@@ -60,13 +60,15 @@ class TimerNotifier extends Notifier<TimerState> {
     );
   }
 
-  void start() {
-    if (state.status == TimerStatus.running) return;
+  Future<void> start() async {
+    final currentState = await future;
+    if (currentState.status == TimerStatus.running) return;
 
-    state = state.copyWith(status: TimerStatus.running);
-    _ticker = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.remainingSeconds > 0) {
-        state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
+    state = AsyncData(currentState.copyWith(status: TimerStatus.running));
+    _ticker = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      final s = await future;
+      if (s.remainingSeconds > 0) {
+        state = AsyncData(s.copyWith(remainingSeconds: s.remainingSeconds - 1));
       } else {
         _handleTimerComplete();
       }
@@ -75,33 +77,38 @@ class TimerNotifier extends Notifier<TimerState> {
 
   void pause() {
     _ticker?.cancel();
-    state = state.copyWith(status: TimerStatus.paused);
+    state = state.whenData((s) => s.copyWith(status: TimerStatus.paused));
   }
 
-  void reset() {
+  Future<void> reset() async {
     _ticker?.cancel();
-    final settings = HiveService.getSettings();
+    final settings = await ref.read(settingsProvider.future);
+    final currentState = await future;
 
     int duration = settings.focusDuration;
-    if (state.type == TimerType.shortBreak) {
+    if (currentState.type == TimerType.shortBreak) {
       duration = settings.shortBreakDuration;
-    } else if (state.type == TimerType.longBreak) {
+    } else if (currentState.type == TimerType.longBreak) {
       duration = settings.longBreakDuration;
     }
 
-    state = state.copyWith(
-      status: TimerStatus.initial,
-      remainingSeconds: duration,
-      initialDuration: duration,
+    state = AsyncData(
+      currentState.copyWith(
+        status: TimerStatus.initial,
+        remainingSeconds: duration,
+        initialDuration: duration,
+      ),
     );
   }
 
   void setDuration(int duration) {
     _ticker?.cancel();
-    state = state.copyWith(
-      status: TimerStatus.initial,
-      remainingSeconds: duration,
-      initialDuration: duration,
+    state = state.whenData(
+      (s) => s.copyWith(
+        status: TimerStatus.initial,
+        remainingSeconds: duration,
+        initialDuration: duration,
+      ),
     );
   }
 
@@ -110,42 +117,40 @@ class TimerNotifier extends Notifier<TimerState> {
     _advancePhase();
   }
 
-  void _handleTimerComplete() {
+  Future<void> _handleTimerComplete() async {
     _ticker?.cancel();
-    state = state.copyWith(status: TimerStatus.finished);
+    final currentState = await future;
+    final settings = await ref.read(settingsProvider.future);
+    final isSoundEnabled = settings.isSoundEnabled ?? true;
 
-    if (state.type == TimerType.focus) {
-      ref.read(currencyProvider.notifier).addCoins(5);
-      _saveStats(state.initialDuration);
-      AudioService.playCoin();
+    if (currentState.type == TimerType.focus) {
+      await ref.read(currencyProvider.notifier).addCoins(5);
+      await _saveStats(currentState.initialDuration);
+      AudioService.playCoin(isSoundEnabled: isSoundEnabled);
     } else {
-      AudioService.playTimerEnd();
+      AudioService.playTimerEnd(isSoundEnabled: isSoundEnabled);
     }
 
     _advancePhase();
   }
 
-  void _saveStats(int seconds) {
-    final progress = HiveService.getUserProgress();
+  Future<void> _saveStats(int seconds) async {
     final today = DateTime.now();
     final dateStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-
-    final currentStats = Map<String, int>.from(progress.dailyFocusStats);
-    currentStats[dateStr] = (currentStats[dateStr] ?? 0) + seconds;
-
-    progress.dailyFocusStats = currentStats;
-    progress.save();
+    await DatabaseService.addFocusTime(dateStr, seconds);
   }
 
-  void _advancePhase() {
-    final settings = HiveService.getSettings();
+  Future<void> _advancePhase() async {
+    _ticker?.cancel();
+    final settings = await ref.read(settingsProvider.future);
+    final currentState = await future;
 
     TimerType nextType;
     int nextDuration;
-    int nextCycle = state.cycleCount;
+    int nextCycle = currentState.cycleCount;
 
-    if (state.type == TimerType.focus) {
+    if (currentState.type == TimerType.focus) {
       nextCycle++;
       if (nextCycle % 4 == 0) {
         nextType = TimerType.longBreak;
@@ -159,13 +164,15 @@ class TimerNotifier extends Notifier<TimerState> {
       nextDuration = settings.focusDuration;
     }
 
-    state = state.copyWith(
+    final newState = currentState.copyWith(
       status: settings.autoQuest ? TimerStatus.running : TimerStatus.initial,
       type: nextType,
       initialDuration: nextDuration,
       remainingSeconds: nextDuration,
       cycleCount: nextCycle,
     );
+
+    state = AsyncData(newState);
 
     if (settings.autoQuest) {
       start();

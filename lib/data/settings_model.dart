@@ -1,26 +1,11 @@
-import 'package:hive/hive.dart';
-
-part 'settings_model.g.dart';
-
-@HiveType(typeId: 0)
-class SettingsModel extends HiveObject {
-  @HiveField(0)
+class SettingsModel {
   int focusDuration;
-
-  @HiveField(1)
   int shortBreakDuration;
-
-  @HiveField(2)
   int longBreakDuration;
-
-  @HiveField(3)
   bool autoQuest;
-
-  @HiveField(4)
-  bool isSoundEnabled;
-
-  @HiveField(5)
-  bool isDarkMode;
+  bool? isSoundEnabled;
+  bool? isDarkMode;
+  String? languageCode;
 
   SettingsModel({
     this.focusDuration = 25 * 60,
@@ -29,5 +14,6 @@ class SettingsModel extends HiveObject {
     this.autoQuest = false,
     this.isSoundEnabled = true,
     this.isDarkMode = true,
+    this.languageCode = 'en',
   });
 }

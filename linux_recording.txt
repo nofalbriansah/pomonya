@@ -1,0 +1,27 @@
+Launching lib/main.dart on Linux in debug mode...
+Building Linux application...                                   
+✓ Built build/linux/x64/debug/bundle/pomonya
+
+(com.pomonya.pomonya:63674): Atk-CRITICAL **: 03:53:54.289: atk_socket_embed: assertion 'plug_id != NULL' failed
+
+** (com.pomonya.pomonya:63674): CRITICAL **: 03:53:56.557: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:63674): CRITICAL **: 03:53:56.559: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:63674): CRITICAL **: 03:53:56.560: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:63674): CRITICAL **: 03:53:56.561: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:63674): CRITICAL **: 03:53:56.561: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+Syncing files to device Linux...                                   671ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on Linux is available at: http://127.0.0.1:41951/37cxB-jACfM=/
+The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:41951/37cxB-jACfM=/devtools/?uri=ws://127.0.0.1:41951/37cxB-jACfM=/ws

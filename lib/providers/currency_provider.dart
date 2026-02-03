@@ -1,30 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/hive_service.dart';
+import '../data/database_service.dart';
 
-final currencyProvider = NotifierProvider<CurrencyNotifier, int>(
+final currencyProvider = AsyncNotifierProvider<CurrencyNotifier, int>(
   CurrencyNotifier.new,
 );
 
-class CurrencyNotifier extends Notifier<int> {
+class CurrencyNotifier extends AsyncNotifier<int> {
   @override
-  int build() {
-    final progress = HiveService.getUserProgress();
+  Future<int> build() async {
+    final progress = await DatabaseService.getUserProgress();
     return progress.coins;
   }
 
-  void addCoins(int amount) {
-    final progress = HiveService.getUserProgress();
-    progress.coins += amount;
-    progress.save();
-    state = progress.coins;
+  Future<void> addCoins(int amount) async {
+    final currentCoins = await future;
+    final newCoins = currentCoins + amount;
+    await DatabaseService.updateCoins(newCoins);
+    state = AsyncData(newCoins);
   }
 
-  bool spendCoins(int amount) {
-    final progress = HiveService.getUserProgress();
-    if (progress.coins >= amount) {
-      progress.coins -= amount;
-      progress.save();
-      state = progress.coins;
+  Future<bool> spendCoins(int amount) async {
+    final currentCoins = await future;
+    if (currentCoins >= amount) {
+      final newCoins = currentCoins - amount;
+      await DatabaseService.updateCoins(newCoins);
+      state = AsyncData(newCoins);
       return true;
     }
     return false;

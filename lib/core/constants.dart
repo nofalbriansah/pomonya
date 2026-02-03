@@ -20,6 +20,15 @@ class AppColors {
   ); // rgba(255, 255, 255, 0.08)
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xB3FFFFFF); // ~70% opacity
+
+  // Light Mode Colors
+  static const Color lightBg = Color(0xFFF8FAFC); // Slate-50
+  static const Color surfaceLight = Color(0xFFFFFFFF); // White
+  static const Color textPrimaryLight = Color(0xFF1E293B); // Slate-800
+  static const Color textSecondaryLight = Color(0xFF64748B); // Slate-500
+  static const Color glassBorderLight = Color(
+    0x14000000,
+  ); // rgba(0, 0, 0, 0.08)
 }
 
 class AppConstants {
@@ -34,4 +43,17 @@ class AppConstants {
   // Database Boxes
   static const String userBox = 'userBox';
   static const String settingsBox = 'settingsBox';
+}
+
+class AppSpacing {
+  static const double xs = 4.0;
+  static const double s = 8.0;
+  static const double m = 16.0;
+  static const double l = 24.0;
+  static const double xl = 32.0;
+  static const double xxl = 48.0;
+
+  static const double borderRadiusS = 8.0;
+  static const double borderRadiusM = 16.0;
+  static const double borderRadiusL = 24.0;
 }

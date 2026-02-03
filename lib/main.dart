@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pomonya/l10n/generated/app_localizations.dart';
 import 'core/theme.dart';
-import 'data/hive_service.dart';
-import 'ui/screens/main_navigation.dart';
 import 'providers/theme_provider.dart';
+import 'providers/locale_provider.dart';
 import 'core/router.dart';
-import 'core/constants.dart';
+
+import 'data/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveService.init();
+  // Initialize SQLite
+  await DatabaseService.database;
   runApp(const ProviderScope(child: PomonyaApp()));
 }
 
@@ -18,16 +21,43 @@ class PomonyaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
+    final themeModeAsync = ref.watch(themeProvider);
+    final localeAsync = ref.watch(localeProvider);
     final router = ref.watch(routerProvider);
 
-    return MaterialApp.router(
-      title: 'Pomonya',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
-      routerConfig: router,
+    return themeModeAsync.when(
+      data: (themeMode) => localeAsync.when(
+        data: (locale) => MaterialApp.router(
+          title: 'Pomonya',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          locale: locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('id')],
+          routerConfig: router,
+        ),
+        loading: () => const MaterialApp(
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
+        ),
+        error: (err, stack) => MaterialApp(
+          home: Scaffold(
+            body: Center(child: Text('Error loading locale: $err')),
+          ),
+        ),
+      ),
+      loading: () => const MaterialApp(
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      ),
+      error: (err, stack) => MaterialApp(
+        home: Scaffold(body: Center(child: Text('Error loading theme: $err'))),
+      ),
     );
   }
 }

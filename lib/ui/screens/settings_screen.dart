@@ -4,6 +4,9 @@ import '../../providers/theme_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pomonya/l10n/generated/app_localizations.dart';
+import '../../providers/locale_provider.dart';
+import '../../data/settings_model.dart';
 import '../../core/constants.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -11,53 +14,91 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final settingsAsync = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
+            _buildHeader(context, theme, l10n),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-                children: [
-                  _buildSectionHeader(
-                    'TIMER SETTINGS',
-                    Icons.timer_outlined,
-                    Colors.cyan,
+              child: settingsAsync.when(
+                data: (settings) => ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.l,
+                    AppSpacing.m,
+                    AppSpacing.l,
+                    100,
                   ),
-                  _buildTimerSettings(context, settings, notifier),
+                  children: [
+                    _buildSectionHeader(
+                      l10n.settingsFocus,
+                      Icons.timer_outlined,
+                      Colors.cyan,
+                      theme,
+                    ),
+                    _buildTimerSettings(
+                      context,
+                      settings,
+                      notifier,
+                      theme,
+                      l10n,
+                    ),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  _buildSectionHeader(
-                    'GAMEPLAY',
-                    Icons.sports_esports_outlined,
-                    Colors.purpleAccent,
-                  ),
-                  _buildGameplaySettings(context, settings, notifier),
+                    _buildSectionHeader(
+                      l10n.settingsAutoQuest,
+                      Icons.sports_esports_outlined,
+                      Colors.purpleAccent,
+                      theme,
+                    ),
+                    _buildGameplaySettings(
+                      context,
+                      settings,
+                      notifier,
+                      theme,
+                      l10n,
+                    ),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  _buildSectionHeader(
-                    'APP THEME',
-                    Icons.palette_outlined,
-                    Colors.cyan,
-                  ),
-                  _buildThemeSettings(context, ref),
+                    _buildSectionHeader(
+                      l10n.settingsTheme,
+                      Icons.palette_outlined,
+                      Colors.cyan,
+                      theme,
+                    ),
+                    _buildThemeSettings(context, ref, theme, l10n),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  _buildSectionHeader(
-                    'SOUND FX',
-                    Icons.graphic_eq,
-                    Colors.cyan,
-                  ),
-                  _buildSoundSettings(context, settings, notifier),
-                ],
+                    _buildSectionHeader(
+                      l10n.settingsSound,
+                      Icons.graphic_eq,
+                      Colors.cyan,
+                      theme,
+                    ),
+                    _buildSoundSettings(context, settings, notifier, theme),
+
+                    const SizedBox(height: 32),
+
+                    _buildSectionHeader(
+                      l10n.settingsLanguage,
+                      Icons.language,
+                      Colors.orangeAccent,
+                      theme,
+                    ),
+                    _buildLanguageSettings(context, ref, theme),
+                    const SizedBox(height: AppSpacing.xxl),
+                  ],
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -66,7 +107,11 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(
+    BuildContext context,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -75,16 +120,25 @@ class SettingsScreen extends ConsumerWidget {
           _buildGlassButton(
             icon: Icons.arrow_back_rounded,
             onTap: () => context.go('/'),
+            theme: theme,
           ),
-          Text(
-            'SYSTEM CONFIG',
-            style: GoogleFonts.pressStart2p(
-              fontSize: 12,
-              color: Colors.cyanAccent,
-              shadows: [
-                BoxShadow(color: Colors.cyan.withOpacity(0.5), blurRadius: 10),
-              ],
-              letterSpacing: 2,
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                l10n.settingsTitle,
+                style: GoogleFonts.pressStart2p(
+                  fontSize: 12,
+                  color: theme.colorScheme.primary,
+                  shadows: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withOpacity(0.5),
+                      blurRadius: 10,
+                    ),
+                  ],
+                  letterSpacing: 2,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 40), // Spacer
@@ -96,6 +150,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildGlassButton({
     required IconData icon,
     required VoidCallback onTap,
+    required ThemeData theme,
   }) {
     return InkWell(
       onTap: onTap,
@@ -104,16 +159,31 @@ class SettingsScreen extends ConsumerWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: AppColors.surfaceDark.withOpacity(0.6),
+          color: theme.cardTheme.color?.withOpacity(0.6),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.glassBorder),
+          border: Border.all(
+            color: theme.cardTheme.shape is RoundedRectangleBorder
+                ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color
+                : AppColors.glassBorder,
+          ),
         ),
-        child: Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
+        child: Icon(
+          icon,
+          color:
+              theme.iconTheme.color?.withOpacity(0.8) ??
+              Colors.white.withOpacity(0.8),
+          size: 20,
+        ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon, Color color) {
+  Widget _buildSectionHeader(
+    String title,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -144,47 +214,59 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildTimerSettings(
     BuildContext context,
-    dynamic settings,
-    dynamic notifier,
+    SettingsModel settings,
+    SettingsNotifier notifier,
+    ThemeData theme,
+    AppLocalizations l10n,
   ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withOpacity(0.6),
+        color: theme.cardTheme.color?.withOpacity(0.6),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: theme.cardTheme.shape is RoundedRectangleBorder
+              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
+                    AppColors.glassBorder
+              : AppColors.glassBorder,
+        ),
       ),
       child: Column(
         children: [
           _buildSlider(
             context,
-            'FOCUS',
+            l10n.settingsFocus,
             (settings.focusDuration / 60).round(),
             5,
             60,
-            Colors.white,
+            theme.brightness == Brightness.dark
+                ? theme.colorScheme.onSurface
+                : theme.colorScheme.primary,
             (val) => notifier.updateFocusDuration(val.round()),
             '25m',
+            theme,
           ),
           _buildSlider(
             context,
-            'SHORT BREAK',
+            l10n.settingsShortBreak,
             (settings.shortBreakDuration / 60).round(),
             1,
             15,
             AppColors.neonFuchsia,
             (val) => notifier.updateShortBreakDuration(val.round()),
             '05m',
+            theme,
           ),
           _buildSlider(
             context,
-            'LONG BREAK',
+            l10n.settingsLongBreak,
             (settings.longBreakDuration / 60).round(),
             5,
             45,
-            Colors.greenAccent, // Emerald replacement
+            Colors.greenAccent,
             (val) => notifier.updateLongBreakDuration(val.round()),
             '15m',
+            theme,
           ),
         ],
       ),
@@ -200,6 +282,7 @@ class SettingsScreen extends ConsumerWidget {
     Color color,
     Function(double) onChanged,
     String displayValue,
+    ThemeData theme,
   ) {
     return Column(
       children: [
@@ -209,7 +292,9 @@ class SettingsScreen extends ConsumerWidget {
             Text(
               label,
               style: GoogleFonts.spaceGrotesk(
-                color: Colors.white.withOpacity(0.7),
+                color:
+                    theme.textTheme.bodyMedium?.color?.withOpacity(0.7) ??
+                    Colors.white.withOpacity(0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
@@ -224,7 +309,7 @@ class SettingsScreen extends ConsumerWidget {
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: color,
-            inactiveTrackColor: Colors.white.withOpacity(0.1),
+            inactiveTrackColor: theme.dividerColor.withOpacity(0.2),
             thumbColor: Colors.white,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             overlayColor: color.withOpacity(0.2),
@@ -245,15 +330,22 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildGameplaySettings(
     BuildContext context,
-    dynamic settings,
-    dynamic notifier,
+    SettingsModel settings,
+    SettingsNotifier notifier,
+    ThemeData theme,
+    AppLocalizations l10n,
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withOpacity(0.6),
+        color: theme.cardTheme.color?.withOpacity(0.6),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: theme.cardTheme.shape is RoundedRectangleBorder
+              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
+                    AppColors.glassBorder
+              : AppColors.glassBorder,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -261,18 +353,20 @@ class SettingsScreen extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Auto-Quest',
+              Text(
+                l10n.settingsAutoQuest,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: theme.textTheme.bodyLarge?.color ?? Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
               Text(
-                'Auto-start next mission',
+                l10n.settingsAutoQuestDesc,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color:
+                      theme.textTheme.bodyMedium?.color?.withOpacity(0.5) ??
+                      Colors.white.withOpacity(0.5),
                   fontSize: 10,
                 ),
               ),
@@ -281,24 +375,29 @@ class SettingsScreen extends ConsumerWidget {
           Switch(
             value: settings.autoQuest,
             onChanged: (val) => notifier.toggleAutoQuest(val),
-            activeThumbColor: AppColors.neonFuchsia,
-            activeTrackColor: AppColors.neonFuchsia.withOpacity(0.3),
+            activeThumbColor: theme.colorScheme.secondary,
+            activeTrackColor: theme.colorScheme.secondary.withOpacity(0.3),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildThemeSettings(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
-    final isDark = themeMode == ThemeMode.dark;
+  Widget _buildThemeSettings(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
+    final themeModeAsync = ref.watch(themeProvider);
+    final isDark = themeModeAsync.asData?.value == ThemeMode.dark;
 
     return Row(
       children: [
         Expanded(
           child: GestureDetector(
             onTap: () {
-              ref.read(themeProvider.notifier).setThemeMode(ThemeMode.dark);
+              ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -309,13 +408,13 @@ class SettingsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark
-                      ? Colors.cyanAccent
-                      : Colors.white.withOpacity(0.1),
+                      ? theme.colorScheme.primary
+                      : theme.dividerColor.withOpacity(0.1),
                 ),
                 boxShadow: isDark
                     ? [
                         BoxShadow(
-                          color: Colors.cyan.withOpacity(0.2),
+                          color: theme.colorScheme.primary.withOpacity(0.2),
                           blurRadius: 10,
                         ),
                       ]
@@ -346,18 +445,20 @@ class SettingsScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'DARK',
+                        l10n.settingsThemeDark,
                         style: GoogleFonts.pressStart2p(
                           fontSize: 8,
-                          color: isDark ? Colors.cyanAccent : Colors.grey,
+                          color: isDark
+                              ? theme.colorScheme.primary
+                              : theme.textTheme.bodySmall?.color,
                         ),
                       ),
                       if (isDark)
                         Container(
                           width: 6,
                           height: 6,
-                          decoration: const BoxDecoration(
-                            color: Colors.cyanAccent,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -372,7 +473,7 @@ class SettingsScreen extends ConsumerWidget {
         Expanded(
           child: GestureDetector(
             onTap: () {
-              ref.read(themeProvider.notifier).setThemeMode(ThemeMode.light);
+              ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
             },
             child: Opacity(
               opacity: !isDark ? 1.0 : 0.5,
@@ -423,7 +524,7 @@ class SettingsScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'LIGHT',
+                          l10n.settingsThemeLight,
                           style: GoogleFonts.pressStart2p(
                             fontSize: 8,
                             color: !isDark ? Colors.purple : Colors.grey,
@@ -452,27 +553,57 @@ class SettingsScreen extends ConsumerWidget {
 
   Widget _buildSoundSettings(
     BuildContext context,
-    dynamic settings,
-    dynamic notifier,
+    SettingsModel settings,
+    SettingsNotifier notifier,
+    ThemeData theme,
   ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withOpacity(0.6),
+        color: theme.cardTheme.color?.withOpacity(0.6),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: theme.cardTheme.shape is RoundedRectangleBorder
+              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
+                    AppColors.glassBorder
+              : AppColors.glassBorder,
+        ),
       ),
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.volume_mute, size: 20, color: Colors.grey),
+              Text(
+                'ENABLE SOUND',
+                style: TextStyle(
+                  color: theme.textTheme.bodyLarge?.color ?? Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              Switch(
+                value: settings.isSoundEnabled ?? true,
+                onChanged: (val) => notifier.toggleSound(val),
+                activeThumbColor: theme.colorScheme.primary,
+                activeTrackColor: theme.colorScheme.primary.withOpacity(0.3),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(
+                Icons.volume_mute,
+                size: 20,
+                color: theme.iconTheme.color?.withOpacity(0.5) ?? Colors.grey,
+              ),
               Expanded(
                 child: SliderTheme(
                   data: SliderThemeData(
-                    activeTrackColor: Colors.cyanAccent,
-                    inactiveTrackColor: Colors.white.withOpacity(0.1),
-                    thumbColor: Colors.cyanAccent,
+                    activeTrackColor: theme.colorScheme.primary,
+                    inactiveTrackColor: theme.dividerColor.withOpacity(0.2),
+                    thumbColor: theme.colorScheme.primary,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 6,
                     ),
@@ -487,14 +618,16 @@ class SettingsScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color:
+                      theme.cardTheme.color?.withOpacity(0.5) ??
+                      Colors.black.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.cyan.withOpacity(0.3)),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.volume_up,
                   size: 16,
-                  color: Colors.cyanAccent,
+                  color: theme.colorScheme.primary,
                 ),
               ),
             ],
@@ -503,12 +636,21 @@ class SettingsScreen extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: _buildSoundOption('8-BIT', Icons.videogame_asset, true),
+                child: _buildSoundOption(
+                  '8-BIT',
+                  Icons.videogame_asset,
+                  true,
+                  theme,
+                ),
               ),
               const SizedBox(width: 8),
-              Expanded(child: _buildSoundOption('LOFI', Icons.headset, false)),
+              Expanded(
+                child: _buildSoundOption('LOFI', Icons.headset, false, theme),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _buildSoundOption('ZEN', Icons.landscape, false)),
+              Expanded(
+                child: _buildSoundOption('ZEN', Icons.landscape, false, theme),
+              ),
             ],
           ),
         ],
@@ -516,14 +658,22 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSoundOption(String label, IconData icon, bool selected) {
-    final color = selected ? Colors.cyanAccent : Colors.white.withOpacity(0.5);
+  Widget _buildSoundOption(
+    String label,
+    IconData icon,
+    bool selected,
+    ThemeData theme,
+  ) {
+    final color = selected
+        ? theme.colorScheme.primary
+        : theme.textTheme.bodyMedium?.color?.withOpacity(0.5) ??
+              Colors.white.withOpacity(0.5);
     final bgColor = selected
-        ? Colors.cyan.withOpacity(0.1)
+        ? theme.colorScheme.primary.withOpacity(0.1)
         : Colors.transparent;
     final borderColor = selected
-        ? Colors.cyan.withOpacity(0.5)
-        : Colors.white.withOpacity(0.05);
+        ? theme.colorScheme.primary.withOpacity(0.5)
+        : theme.dividerColor.withOpacity(0.1);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -541,6 +691,108 @@ class SettingsScreen extends ConsumerWidget {
             style: GoogleFonts.pressStart2p(fontSize: 8, color: color),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageSettings(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeData theme,
+  ) {
+    final localeAsync = ref.watch(localeProvider);
+    final String languageCode = localeAsync.asData?.value.languageCode ?? 'en';
+    final l10n = AppLocalizations.of(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildLanguageOption(
+            context,
+            ref,
+            l10n.settingsLanguageEn,
+            '🇺🇸',
+            languageCode == 'en',
+            'en',
+            theme,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildLanguageOption(
+            context,
+            ref,
+            l10n.settingsLanguageId,
+            '🇮🇩',
+            languageCode == 'id',
+            'id',
+            theme,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguageOption(
+    BuildContext context,
+    WidgetRef ref,
+    String label,
+    String flag,
+    bool isSelected,
+    String code,
+    ThemeData theme,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        ref.read(localeProvider.notifier).setLocale(code);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? theme.colorScheme.primary.withOpacity(0.1)
+              : theme.cardTheme.color?.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.dividerColor.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    blurRadius: 8,
+                  ),
+                ]
+              : [],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // Constrain height
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(flag, style: const TextStyle(fontSize: 24)),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.pressStart2p(
+                  fontSize: 8,
+                  color: isSelected
+                      ? theme.primaryColor
+                      : theme.textTheme.bodyMedium?.color,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

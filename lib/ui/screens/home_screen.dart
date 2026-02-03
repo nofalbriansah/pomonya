@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pomonya/l10n/generated/app_localizations.dart';
 import '../../core/constants.dart';
 import '../../providers/timer_provider.dart';
 import '../widgets/mpus_animation.dart';
@@ -13,8 +14,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timerState = ref.watch(timerProvider);
 
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Blobs
@@ -37,14 +41,18 @@ class HomeScreen extends ConsumerWidget {
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildTimerDisplay(context, timerState),
-                    const SizedBox(height: 60),
-                    _buildControls(ref, timerState),
-                    const SizedBox(height: 20), // Space for bottom nav
-                  ],
+                child: timerState.when(
+                  data: (state) => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildTimerDisplay(context, state, theme, l10n),
+                      const SizedBox(height: 60),
+                      _buildControls(ref, state, theme),
+                      const SizedBox(height: 40), // Space for bottom nav
+                    ],
+                  ),
+                  loading: () => const CircularProgressIndicator(),
+                  error: (err, stack) => Text('Error: $err'),
                 ),
               ),
             ),
@@ -72,24 +80,41 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildGlassButton({
     required IconData icon,
     required VoidCallback onTap,
+    required ThemeData theme,
   }) {
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withOpacity(0.6),
+        color: theme.cardTheme.color?.withOpacity(0.6),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(
+          color: theme.cardTheme.shape is RoundedRectangleBorder
+              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
+                    AppColors.glassBorder
+              : AppColors.glassBorder,
+        ),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
+        child: Icon(
+          icon,
+          color:
+              theme.iconTheme.color?.withOpacity(0.8) ??
+              Colors.white.withOpacity(0.8),
+          size: 20,
+        ),
       ),
     );
   }
 
-  Widget _buildTimerDisplay(BuildContext context, TimerState state) {
+  Widget _buildTimerDisplay(
+    BuildContext context,
+    TimerState state,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -98,6 +123,25 @@ class HomeScreen extends ConsumerWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
+              // Outer glow ring
+              Container(
+                width: 280,
+                height: 280,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: theme.dividerColor.withOpacity(0.1),
+                  ),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      theme.dividerColor.withOpacity(0.05),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
               // Inner glowing ring
               Container(
                 width: 250,
@@ -105,12 +149,12 @@ class HomeScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppColors.neonFuchsia.withOpacity(0.3),
+                    color: theme.colorScheme.secondary.withOpacity(0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.neonFuchsia.withOpacity(0.15),
+                      color: theme.colorScheme.secondary.withOpacity(0.15),
                       blurRadius: 30,
                       spreadRadius: 0,
                     ),
@@ -133,131 +177,70 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         // Timer Text
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Colors.white, Color(0xFF94A3B8)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(bounds),
-          child: Text(
-            _formatTime(state.remainingSeconds),
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 72,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1,
-              letterSpacing: -2,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  theme.textTheme.displayLarge?.color ?? Colors.white,
+                  theme.textTheme.displayLarge?.color?.withOpacity(0.7) ??
+                      Colors.blueGrey,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ).createShader(bounds),
+              child: Text(
+                _formatTime(state.remainingSeconds),
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 72,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  height: 1,
+                  letterSpacing: -2,
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 40), // Increased spacing
-        // Focus Session Pill
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceDark.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(50),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.greenAccent.withOpacity(0.8),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                _getStatusText(state.type),
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 10,
-                  color: Colors.blue.shade200,
-                ),
-              ),
-            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildActionCard({
-    required String icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 110,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.1)),
-            left: BorderSide(color: Colors.white.withOpacity(0.1)),
-          ),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.05),
-              Colors.white.withOpacity(0.01),
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10),
-          ],
-        ),
-        child: Stack(
+  Widget _buildControls(WidgetRef ref, TimerState state, ThemeData theme) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Top highlight line
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      color.withOpacity(0.5),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
+            _buildTimeControlButton(
+              icon: Icons.refresh_rounded,
+              onTap: () {
+                ref.read(timerProvider.notifier).reset();
+              },
+              theme: theme,
             ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(icon, style: const TextStyle(fontSize: 28)),
-                  const SizedBox(height: 8),
-                  Text(
-                    label.toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 0.5,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
-              ),
+            const SizedBox(width: 32),
+            _buildPlayButton(
+              isPlaying: state.status == TimerStatus.running,
+              onTap: () {
+                if (state.status == TimerStatus.running) {
+                  ref.read(timerProvider.notifier).pause();
+                } else {
+                  ref.read(timerProvider.notifier).start();
+                }
+              },
+            ),
+            const SizedBox(width: 32),
+            _buildTimeControlButton(
+              icon: Icons.skip_next_rounded,
+              onTap: () {
+                ref.read(timerProvider.notifier).skip();
+              },
+              theme: theme,
             ),
           ],
         ),
@@ -265,41 +248,10 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildControls(WidgetRef ref, TimerState state) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildTimeControlButton(
-          icon: Icons.refresh_rounded,
-          onTap: () {
-            ref.read(timerProvider.notifier).reset();
-          },
-        ),
-        const SizedBox(width: 32),
-        _buildPlayButton(
-          isPlaying: state.status == TimerStatus.running,
-          onTap: () {
-            if (state.status == TimerStatus.running) {
-              ref.read(timerProvider.notifier).pause();
-            } else {
-              ref.read(timerProvider.notifier).start();
-            }
-          },
-        ),
-        const SizedBox(width: 32),
-        _buildTimeControlButton(
-          icon: Icons.skip_next_rounded,
-          onTap: () {
-            ref.read(timerProvider.notifier).skip();
-          },
-        ), // Placeholder for symmetry or another action
-      ],
-    );
-  }
-
   Widget _buildTimeControlButton({
     required IconData icon,
     required VoidCallback onTap,
+    required ThemeData theme,
   }) {
     return InkWell(
       onTap: onTap,
@@ -308,9 +260,16 @@ class HomeScreen extends ConsumerWidget {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.surfaceDark.withOpacity(0.6),
+          color: theme.cardTheme.color?.withOpacity(0.6),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.glassBorder),
+          border: Border.all(
+            color: theme.cardTheme.shape is RoundedRectangleBorder
+                ? (theme.cardTheme.shape as RoundedRectangleBorder)
+                          .side
+                          .color ??
+                      AppColors.glassBorder
+                : AppColors.glassBorder,
+          ),
         ),
         child: Icon(icon, color: Colors.blueGrey.shade200, size: 24),
       ),
@@ -373,16 +332,5 @@ class HomeScreen extends ConsumerWidget {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-
-  String _getStatusText(TimerType type) {
-    switch (type) {
-      case TimerType.focus:
-        return 'FOCUS SESSION';
-      case TimerType.shortBreak:
-        return 'SHORT BREAK';
-      case TimerType.longBreak:
-        return 'LONG BREAK';
-    }
   }
 }

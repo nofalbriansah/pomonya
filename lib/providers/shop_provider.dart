@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/hive_service.dart';
+import '../data/database_service.dart';
 import 'currency_provider.dart';
 
 class ShopItem {
@@ -42,36 +42,33 @@ final shopItems = [
     imagePath: 'assets/skins/classic.png',
   ),
 ];
-// The original snippet had a syntax error here: `];  ),`
-// I'm correcting it to just `];` to maintain valid syntax.
 
-final shopProvider = NotifierProvider<ShopNotifier, List<String>>(
+final shopProvider = AsyncNotifierProvider<ShopNotifier, List<String>>(
   ShopNotifier.new,
 );
 
-class ShopNotifier extends Notifier<List<String>> {
+class ShopNotifier extends AsyncNotifier<List<String>> {
   @override
-  List<String> build() {
-    final progress = HiveService.getUserProgress();
+  Future<List<String>> build() async {
+    final progress = await DatabaseService.getUserProgress();
     final items = progress.unlockedItems;
     if (!items.contains('skin_classic')) {
-      final newItems = [...items, 'skin_classic'];
-      progress.unlockedItems = newItems;
-      progress.save();
-      return newItems;
+      await DatabaseService.addUnlockedItem('skin_classic');
+      return [...items, 'skin_classic'];
     }
     return items;
   }
 
-  bool buyItem(ShopItem item) {
-    if (state.contains(item.id)) return false;
+  Future<bool> buyItem(ShopItem item) async {
+    final currentItems = await future;
+    if (currentItems.contains(item.id)) return false;
 
-    final success = ref.read(currencyProvider.notifier).spendCoins(item.price);
+    final success = await ref
+        .read(currencyProvider.notifier)
+        .spendCoins(item.price);
     if (success) {
-      state = [...state, item.id];
-      final progress = HiveService.getUserProgress();
-      progress.unlockedItems = state;
-      progress.save();
+      await DatabaseService.addUnlockedItem(item.id);
+      state = AsyncData([...currentItems, item.id]);
       return true;
     }
     return false;

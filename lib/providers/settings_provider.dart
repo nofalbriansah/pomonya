@@ -1,46 +1,51 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/hive_service.dart';
+import '../data/database_service.dart';
 import '../data/settings_model.dart';
 import 'timer_provider.dart';
 
-final settingsProvider = NotifierProvider<SettingsNotifier, SettingsModel>(
+final settingsProvider = AsyncNotifierProvider<SettingsNotifier, SettingsModel>(
   SettingsNotifier.new,
 );
 
-class SettingsNotifier extends Notifier<SettingsModel> {
+class SettingsNotifier extends AsyncNotifier<SettingsModel> {
   @override
-  SettingsModel build() {
-    return HiveService.getSettings();
+  Future<SettingsModel> build() async {
+    return await DatabaseService.getSettings();
   }
 
-  void updateFocusDuration(int minutes) {
-    state.focusDuration = minutes * 60;
-    state.save();
-    ref.notifyListeners(); // Force update if necessary
+  Future<void> updateFocusDuration(int minutes) async {
+    final current = await future;
+    current.focusDuration = minutes * 60;
+    await DatabaseService.updateSettings(current);
+    state = AsyncData(current);
     ref.read(timerProvider.notifier).reset();
   }
 
-  void updateShortBreakDuration(int minutes) {
-    state.shortBreakDuration = minutes * 60;
-    state.save();
-    ref.notifyListeners();
+  Future<void> updateShortBreakDuration(int minutes) async {
+    final current = await future;
+    current.shortBreakDuration = minutes * 60;
+    await DatabaseService.updateSettings(current);
+    state = AsyncData(current);
   }
 
-  void updateLongBreakDuration(int minutes) {
-    state.longBreakDuration = minutes * 60;
-    state.save();
-    ref.notifyListeners();
+  Future<void> updateLongBreakDuration(int minutes) async {
+    final current = await future;
+    current.longBreakDuration = minutes * 60;
+    await DatabaseService.updateSettings(current);
+    state = AsyncData(current);
   }
 
-  void toggleAutoQuest(bool value) {
-    state.autoQuest = value;
-    state.save();
-    ref.notifyListeners();
+  Future<void> toggleAutoQuest(bool value) async {
+    final current = await future;
+    current.autoQuest = value;
+    await DatabaseService.updateSettings(current);
+    state = AsyncData(current);
   }
 
-  void toggleSound(bool value) {
-    state.isSoundEnabled = value;
-    state.save();
-    ref.notifyListeners();
+  Future<void> toggleSound(bool value) async {
+    final current = await future;
+    current.isSoundEnabled = value;
+    await DatabaseService.updateSettings(current);
+    state = AsyncData(current);
   }
 }

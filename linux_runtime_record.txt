@@ -1,0 +1,13 @@
+
+(com.pomonya.pomonya:61660): Atk-CRITICAL **: 03:50:48.058: atk_socket_embed: assertion 'plug_id != NULL' failed
+The Dart VM service is listening on http://127.0.0.1:36861/Exf4DT3OuMo=/
+
+** (com.pomonya.pomonya:61660): CRITICAL **: 03:50:50.483: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:61660): CRITICAL **: 03:50:50.502: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:61660): CRITICAL **: 03:50:50.503: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:61660): CRITICAL **: 03:50:50.504: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:61660): CRITICAL **: 03:50:50.505: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found

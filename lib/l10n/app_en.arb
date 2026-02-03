@@ -1,0 +1,44 @@
+{
+  "@@locale": "en",
+  "appTitle": "Pomonya",
+  "homeStatusFocus": "FOCUS SESSION",
+  "homeStatusShortBreak": "SHORT BREAK",
+  "homeStatusLongBreak": "LONG BREAK",
+  "homeActionFocus": "FOCUS MISSION",
+  "homeActionBreak": "GAME BREAK",
+  "homeActionSleep": "EPIC SLEEP",
+  "navHome": "HOME",
+  "navShop": "SHOP",
+  "navStats": "STATS",
+  "navSettings": "SETTINGS",
+  "shopTitle": "ARCADE SHOP",
+  "shopUnlockItem": "UNLOCK ITEM?",
+  "shopCost": "Cost: {price} Gems",
+  "@shopCost": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
+  "shopCancel": "CANCEL",
+  "shopBuy": "BUY",
+  "shopNotEnoughGems": "Not enough gems!",
+  "statsTitle": "PRODUCTIVITY DATA",
+  "statsTotalProductivity": "TOTAL PRODUCTIVITY",
+  "statsExportData": "EXPORT DATA",
+  "statsDataExported": "Data exported to clipboard!",
+  "settingsTitle": "SYSTEM CONFIG",
+  "settingsFocus": "FOCUS",
+  "settingsShortBreak": "S. BREAK",
+  "settingsLongBreak": "L. BREAK",
+  "settingsAutoQuest": "Auto-Quest",
+  "settingsAutoQuestDesc": "Auto-start next mission",
+  "settingsTheme": "THEME",
+  "settingsThemeDark": "DARK",
+  "settingsThemeLight": "LIGHT",
+  "settingsSound": "SOUND FX",
+  "settingsLanguage": "LANGUAGE",
+  "settingsLanguageEn": "ENGLISH",
+  "settingsLanguageId": "INDONESIA"
+}

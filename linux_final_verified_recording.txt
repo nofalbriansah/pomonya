@@ -1,0 +1,30 @@
+Launching lib/main.dart on Linux in debug mode...
+Building Linux application...                                   
+ERROR: Invalid depfile: /home/nbs/Documents/Coding/pomonya/.dart_tool/flutter_build/38c009e274072b036ee672d3c90549b9/kernel_snapshot_program.d
+ERROR: Invalid depfile: /home/nbs/Documents/Coding/pomonya/.dart_tool/flutter_build/38c009e274072b036ee672d3c90549b9/kernel_snapshot_program.d
+✓ Built build/linux/x64/debug/bundle/pomonya
+
+(com.pomonya.pomonya:65408): Atk-CRITICAL **: 03:56:32.506: atk_socket_embed: assertion 'plug_id != NULL' failed
+
+** (com.pomonya.pomonya:65408): CRITICAL **: 03:56:38.314: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:65408): CRITICAL **: 03:56:38.316: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:65408): CRITICAL **: 03:56:38.318: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:65408): CRITICAL **: 03:56:38.319: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+
+** (com.pomonya.pomonya:65408): CRITICAL **: 03:56:38.320: Failed to read XDG desktop portal settings: GDBus.Error:org.freedesktop.portal.Error.NotFound: Requested setting not found
+Syncing files to device Linux...                                   167ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on Linux is available at: http://127.0.0.1:40273/yiGEw82kFAY=/
+The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:40273/yiGEw82kFAY=/devtools/?uri=ws://127.0.0.1:40273/yiGEw82kFAY=/ws
+Application finished.

@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/hive_service.dart';
+import '../data/database_service.dart';
+import 'settings_provider.dart';
 
-final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
+final themeProvider = AsyncNotifierProvider<ThemeNotifier, ThemeMode>(
   ThemeNotifier.new,
 );
 
-class ThemeNotifier extends Notifier<ThemeMode> {
+class ThemeNotifier extends AsyncNotifier<ThemeMode> {
   @override
-  ThemeMode build() {
-    final settings = HiveService.getSettings();
-    return settings.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  Future<ThemeMode> build() async {
+    final settings = await ref.watch(settingsProvider.future);
+    if (settings.isDarkMode == null) return ThemeMode.system;
+    return settings.isDarkMode! ? ThemeMode.dark : ThemeMode.light;
   }
 
-  void toggleTheme() {
-    final settings = HiveService.getSettings();
-    settings.isDarkMode = !settings.isDarkMode;
-    settings.save();
-    state = settings.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  Future<void> toggleTheme() async {
+    final settings = await ref.read(settingsProvider.future);
+    settings.isDarkMode = !(settings.isDarkMode ?? true);
+    await DatabaseService.updateSettings(settings);
+    // Refresh settings provider
+    ref.invalidate(settingsProvider);
   }
 
-  void setThemeMode(ThemeMode mode) {
-    final settings = HiveService.getSettings();
+  Future<void> setTheme(ThemeMode mode) async {
+    final settings = await ref.read(settingsProvider.future);
     settings.isDarkMode = mode == ThemeMode.dark;
-    settings.save();
-    state = mode;
+    await DatabaseService.updateSettings(settings);
+    ref.invalidate(settingsProvider);
   }
 }
