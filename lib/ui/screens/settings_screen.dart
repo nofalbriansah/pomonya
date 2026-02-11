@@ -113,66 +113,50 @@ class SettingsScreen extends ConsumerWidget {
     AppLocalizations l10n,
   ) {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildGlassButton(
-            icon: Icons.arrow_back_rounded,
-            onTap: () => context.go('/'),
-            theme: theme,
-          ),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                l10n.settingsTitle,
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 12,
-                  color: theme.colorScheme.primary,
-                  shadows: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withOpacity(0.5),
-                      blurRadius: 10,
-                    ),
-                  ],
-                  letterSpacing: 2,
-                ),
-              ),
+          _buildSquircleBackButton(context, theme),
+          Text(
+            l10n.settingsTitle.toUpperCase(),
+            style: GoogleFonts.inter(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: theme.colorScheme.onSurface,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(width: 40), // Spacer
+          const SizedBox(width: 40), // Symmetric spacer
         ],
       ),
     );
   }
 
-  Widget _buildGlassButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    required ThemeData theme,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+  Widget _buildSquircleBackButton(BuildContext context, ThemeData theme) {
+    return GestureDetector(
+      onTap: () => context.go('/'),
       child: Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: theme.cardTheme.color?.withOpacity(0.6),
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.cardTheme.shape is RoundedRectangleBorder
-                ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color
-                : AppColors.glassBorder,
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Icon(
-          icon,
-          color:
-              theme.iconTheme.color?.withOpacity(0.8) ??
-              Colors.white.withOpacity(0.8),
-          size: 20,
+          Icons.arrow_back_ios_new_rounded,
+          color: theme.colorScheme.onSurface,
+          size: 18,
         ),
       ),
     );
@@ -185,26 +169,18 @@ class SettingsScreen extends ConsumerWidget {
     ThemeData theme,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: color.withOpacity(0.4), blurRadius: 10),
-              ],
-            ),
-            child: Icon(icon, size: 18, color: color),
-          ),
-          const SizedBox(width: 12),
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 10),
           Text(
-            title,
-            style: GoogleFonts.pressStart2p(
-              fontSize: 10,
+            title.toUpperCase(),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
               color: color,
-              letterSpacing: 1,
+              letterSpacing: 1.2,
             ),
           ),
         ],
@@ -222,14 +198,16 @@ class SettingsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.cardTheme.color?.withOpacity(0.6),
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.cardTheme.shape is RoundedRectangleBorder
-              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
-                    AppColors.glassBorder
-              : AppColors.glassBorder,
-        ),
+        border: Border.all(color: theme.colorScheme.outline),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -239,33 +217,30 @@ class SettingsScreen extends ConsumerWidget {
             (settings.focusDuration / 60).round(),
             5,
             60,
-            theme.brightness == Brightness.dark
-                ? theme.colorScheme.onSurface
-                : theme.colorScheme.primary,
+            theme.colorScheme.primary,
             (val) => notifier.updateFocusDuration(val.round()),
-            '25m',
             theme,
           ),
+          const Divider(height: 32),
           _buildSlider(
             context,
             l10n.settingsShortBreak,
             (settings.shortBreakDuration / 60).round(),
             1,
             15,
-            AppColors.neonFuchsia,
+            theme.colorScheme.secondary,
             (val) => notifier.updateShortBreakDuration(val.round()),
-            '05m',
             theme,
           ),
+          const Divider(height: 32),
           _buildSlider(
             context,
             l10n.settingsLongBreak,
             (settings.longBreakDuration / 60).round(),
             5,
             45,
-            Colors.greenAccent,
+            theme.colorScheme.tertiary,
             (val) => notifier.updateLongBreakDuration(val.round()),
-            '15m',
             theme,
           ),
         ],
@@ -281,7 +256,6 @@ class SettingsScreen extends ConsumerWidget {
     double max,
     Color color,
     Function(double) onChanged,
-    String displayValue,
     ThemeData theme,
   ) {
     return Column(
@@ -291,39 +265,49 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.spaceGrotesk(
-                color:
-                    theme.textTheme.bodyMedium?.color?.withOpacity(0.7) ??
-                    Colors.white.withOpacity(0.7),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
+              style: GoogleFonts.inter(
+                color: theme.colorScheme.onSurface,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Text(
-              '${value}m',
-              style: GoogleFonts.pressStart2p(color: color, fontSize: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${value}m',
+                style: GoogleFonts.inter(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 8),
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: color,
-            inactiveTrackColor: theme.dividerColor.withOpacity(0.2),
+            inactiveTrackColor: color.withValues(alpha: 0.1),
             thumbColor: Colors.white,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            overlayColor: color.withOpacity(0.2),
-            trackHeight: 4,
+            thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 10,
+              elevation: 4,
+            ),
+            overlayColor: color.withValues(alpha: 0.1),
+            trackHeight: 6,
           ),
           child: Slider(
             value: value.toDouble(),
             min: min,
             max: max,
             onChanged: onChanged,
-            // divisions: (max - min).toInt(), // Optional: steps
           ),
         ),
-        const SizedBox(height: 4),
       ],
     );
   }
@@ -336,47 +320,48 @@ class SettingsScreen extends ConsumerWidget {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.cardTheme.color?.withOpacity(0.6),
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.cardTheme.shape is RoundedRectangleBorder
-              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
-                    AppColors.glassBorder
-              : AppColors.glassBorder,
-        ),
+        border: Border.all(color: theme.colorScheme.outline),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.settingsAutoQuest,
-                style: TextStyle(
-                  color: theme.textTheme.bodyLarge?.color ?? Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.settingsAutoQuest,
+                  style: GoogleFonts.inter(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-              Text(
-                l10n.settingsAutoQuestDesc,
-                style: TextStyle(
-                  color:
-                      theme.textTheme.bodyMedium?.color?.withOpacity(0.5) ??
-                      Colors.white.withOpacity(0.5),
-                  fontSize: 10,
+                Text(
+                  l10n.settingsAutoQuestDesc,
+                  style: GoogleFonts.inter(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Switch(
             value: settings.autoQuest,
             onChanged: (val) => notifier.toggleAutoQuest(val),
-            activeThumbColor: theme.colorScheme.secondary,
-            activeTrackColor: theme.colorScheme.secondary.withOpacity(0.3),
+            activeThumbColor: theme.colorScheme.primary,
           ),
         ],
       ),
@@ -390,164 +375,83 @@ class SettingsScreen extends ConsumerWidget {
     AppLocalizations l10n,
   ) {
     final themeModeAsync = ref.watch(themeProvider);
-    final isDark = themeModeAsync.asData?.value == ThemeMode.dark;
+    final currentMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return Row(
       children: [
         Expanded(
-          child: GestureDetector(
-            onTap: () {
-              ref.read(themeProvider.notifier).setTheme(ThemeMode.dark);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.surfaceDark.withOpacity(0.8)
-                    : AppColors.surfaceDark.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark
-                      ? theme.colorScheme.primary
-                      : theme.dividerColor.withOpacity(0.1),
-                ),
-                boxShadow: isDark
-                    ? [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.2),
-                          blurRadius: 10,
-                        ),
-                      ]
-                    : [],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: AppColors.darkBg,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.cyan.withOpacity(0.2),
-                          border: Border.all(color: Colors.cyan, width: 1),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.settingsThemeDark,
-                        style: GoogleFonts.pressStart2p(
-                          fontSize: 8,
-                          color: isDark
-                              ? theme.colorScheme.primary
-                              : theme.textTheme.bodySmall?.color,
-                        ),
-                      ),
-                      if (isDark)
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          child: _buildThemeOption(
+            context,
+            ref,
+            l10n.settingsThemeDark,
+            Icons.dark_mode_rounded,
+            currentMode == ThemeMode.dark,
+            ThemeMode.dark,
+            theme,
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: GestureDetector(
-            onTap: () {
-              ref.read(themeProvider.notifier).setTheme(ThemeMode.light);
-            },
-            child: Opacity(
-              opacity: !isDark ? 1.0 : 0.5,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: !isDark
-                      ? Colors.white.withOpacity(0.9)
-                      : AppColors.surfaceDark.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: !isDark
-                        ? Colors.purple
-                        : Colors.white.withOpacity(0.1),
-                  ),
-                  boxShadow: !isDark
-                      ? [
-                          BoxShadow(
-                            color: Colors.purple.withOpacity(0.2),
-                            blurRadius: 10,
-                          ),
-                        ]
-                      : [],
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.purple.withOpacity(0.1),
-                            border: Border.all(color: Colors.purple, width: 1),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.settingsThemeLight,
-                          style: GoogleFonts.pressStart2p(
-                            fontSize: 8,
-                            color: !isDark ? Colors.purple : Colors.grey,
-                          ),
-                        ),
-                        if (!isDark)
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: Colors.purple,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          child: _buildThemeOption(
+            context,
+            ref,
+            l10n.settingsThemeLight,
+            Icons.light_mode_rounded,
+            currentMode == ThemeMode.light || currentMode == ThemeMode.system,
+            ThemeMode.light,
+            theme,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    WidgetRef ref,
+    String label,
+    IconData icon,
+    bool isSelected,
+    ThemeMode mode,
+    ThemeData theme,
+  ) {
+    final activeColor = theme.colorScheme.primary;
+    return GestureDetector(
+      onTap: () => ref.read(themeProvider.notifier).setTheme(mode),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        decoration: BoxDecoration(
+          color: theme.cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? activeColor : theme.colorScheme.outline,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: activeColor.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 28, color: isSelected ? activeColor : Colors.grey),
+            const SizedBox(height: 12),
+            Text(
+              label.toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: isSelected ? activeColor : Colors.grey,
+                letterSpacing: 1.1,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -560,14 +464,16 @@ class SettingsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.cardTheme.color?.withOpacity(0.6),
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.cardTheme.shape is RoundedRectangleBorder
-              ? (theme.cardTheme.shape as RoundedRectangleBorder).side.color ??
-                    AppColors.glassBorder
-              : AppColors.glassBorder,
-        ),
+        border: Border.all(color: theme.colorScheme.outline),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -576,59 +482,16 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               Text(
                 'ENABLE SOUND',
-                style: TextStyle(
-                  color: theme.textTheme.bodyLarge?.color ?? Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                style: GoogleFonts.inter(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
                 ),
               ),
               Switch(
                 value: settings.isSoundEnabled ?? true,
                 onChanged: (val) => notifier.toggleSound(val),
                 activeThumbColor: theme.colorScheme.primary,
-                activeTrackColor: theme.colorScheme.primary.withOpacity(0.3),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(
-                Icons.volume_mute,
-                size: 20,
-                color: theme.iconTheme.color?.withOpacity(0.5) ?? Colors.grey,
-              ),
-              Expanded(
-                child: SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: theme.colorScheme.primary,
-                    inactiveTrackColor: theme.dividerColor.withOpacity(0.2),
-                    thumbColor: theme.colorScheme.primary,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 6,
-                    ),
-                    trackHeight: 2,
-                  ),
-                  child: Slider(
-                    value: 0.75, // Placeholder
-                    onChanged: (val) {},
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      theme.cardTheme.color?.withOpacity(0.5) ??
-                      Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.cyan.withOpacity(0.3)),
-                ),
-                child: Icon(
-                  Icons.volume_up,
-                  size: 16,
-                  color: theme.colorScheme.primary,
-                ),
               ),
             ],
           ),
@@ -664,23 +527,20 @@ class SettingsScreen extends ConsumerWidget {
     bool selected,
     ThemeData theme,
   ) {
-    final color = selected
-        ? theme.colorScheme.primary
-        : theme.textTheme.bodyMedium?.color?.withOpacity(0.5) ??
-              Colors.white.withOpacity(0.5);
+    final color = selected ? theme.colorScheme.primary : Colors.grey;
     final bgColor = selected
-        ? theme.colorScheme.primary.withOpacity(0.1)
+        ? theme.colorScheme.primary.withValues(alpha: 0.1)
         : Colors.transparent;
     final borderColor = selected
-        ? theme.colorScheme.primary.withOpacity(0.5)
-        : theme.dividerColor.withOpacity(0.1);
+        ? theme.colorScheme.primary
+        : theme.colorScheme.outline;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: selected ? 2 : 1),
       ),
       child: Column(
         children: [
@@ -688,7 +548,11 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.pressStart2p(fontSize: 8, color: color),
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
           ),
         ],
       ),
@@ -742,53 +606,38 @@ class SettingsScreen extends ConsumerWidget {
     String code,
     ThemeData theme,
   ) {
+    final activeColor = theme.colorScheme.primary;
     return GestureDetector(
-      onTap: () {
-        ref.read(localeProvider.notifier).setLocale(code);
-      },
+      onTap: () => ref.read(localeProvider.notifier).setLocale(code),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? theme.colorScheme.primary.withOpacity(0.1)
-              : theme.cardTheme.color?.withOpacity(0.6),
-          borderRadius: BorderRadius.circular(16),
+          color: theme.cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.dividerColor.withOpacity(0.1),
+            color: isSelected ? activeColor : theme.colorScheme.outline,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.2),
-                    blurRadius: 8,
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: activeColor.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Constrain height
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(flag, style: const TextStyle(fontSize: 24)),
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Flexible(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 8,
-                  color: isSelected
-                      ? theme.primaryColor
-                      : theme.textTheme.bodyMedium?.color,
-                ),
+            Text(flag, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 12),
+            Text(
+              label.toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: isSelected ? activeColor : Colors.grey,
+                letterSpacing: 1.1,
               ),
             ),
           ],

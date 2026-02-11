@@ -95,7 +95,7 @@ class _MpusAnimationState extends State<MpusAnimation> {
           style: const TextStyle(
             fontFamily: 'Press Start 2P',
             fontSize: 10,
-            color: AppColors.textSecondary,
+            color: AppColors.textSubDark,
           ),
         ),
       ],

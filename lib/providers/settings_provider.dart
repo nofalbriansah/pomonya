@@ -26,6 +26,7 @@ class SettingsNotifier extends AsyncNotifier<SettingsModel> {
     current.shortBreakDuration = minutes * 60;
     await DatabaseService.updateSettings(current);
     state = AsyncData(current);
+    ref.read(timerProvider.notifier).reset();
   }
 
   Future<void> updateLongBreakDuration(int minutes) async {
@@ -33,6 +34,7 @@ class SettingsNotifier extends AsyncNotifier<SettingsModel> {
     current.longBreakDuration = minutes * 60;
     await DatabaseService.updateSettings(current);
     state = AsyncData(current);
+    ref.read(timerProvider.notifier).reset();
   }
 
   Future<void> toggleAutoQuest(bool value) async {

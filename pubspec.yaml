@@ -75,7 +75,7 @@ flutter:
 
   assets:
     - assets/animations/
-    # - assets/sfx/
+    - assets/shop_banner.png
     - assets/skins/
     # - assets/hats/
 

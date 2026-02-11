@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pomonya/l10n/generated/app_localizations.dart';
 
@@ -27,62 +25,53 @@ class MainNavigation extends StatelessWidget {
     AppLocalizations l10n,
   ) {
     return Container(
-      height: 100, // Includes content + safe area padding
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            theme.colorScheme.surfaceContainer.withOpacity(0.8),
-            theme.colorScheme.surfaceContainer,
-          ],
-        ),
+        color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
-        ), // gentle border
+          top: BorderSide(color: theme.colorScheme.outline, width: 1),
+        ),
       ),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  context,
-                  0,
-                  Icons.home_rounded,
-                  l10n.navHome,
-                  Colors.greenAccent,
-                  theme,
-                ),
-                _buildNavItem(
-                  context,
-                  1,
-                  Icons.storefront_rounded,
-                  l10n.navShop,
-                  Colors.blueAccent,
-                  theme,
-                ),
-                _buildNavItem(
-                  context,
-                  2,
-                  Icons.leaderboard_rounded,
-                  l10n.navStats,
-                  Colors.amberAccent,
-                  theme,
-                ),
-                _buildNavItem(
-                  context,
-                  3,
-                  Icons.settings_rounded,
-                  l10n.navSettings,
-                  Colors.purpleAccent,
-                  theme,
-                ),
-              ],
-            ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                context,
+                0,
+                Icons.home_rounded,
+                l10n.navHome.toUpperCase(),
+                theme.colorScheme.primary,
+                theme,
+              ),
+              _buildNavItem(
+                context,
+                1,
+                Icons.storefront_rounded,
+                l10n.navShop.toUpperCase(),
+                theme.colorScheme.primary,
+                theme,
+              ),
+              _buildNavItem(
+                context,
+                2,
+                Icons.bar_chart_rounded,
+                l10n.navStats.toUpperCase(),
+                theme.colorScheme.primary,
+                theme,
+              ),
+              _buildNavItem(
+                context,
+                3,
+                Icons.settings_rounded,
+                l10n.navSettings.toUpperCase(),
+                theme.colorScheme.primary,
+                theme,
+              ),
+            ],
           ),
         ),
       ),
@@ -94,64 +83,35 @@ class MainNavigation extends StatelessWidget {
     int index,
     IconData icon,
     String label,
-    Color color,
+    Color activeColor,
     ThemeData theme,
   ) {
     final isSelected = navigationShell.currentIndex == index;
-    final activeColor = color;
-    // Adapt inactive color based on theme brightness
-    final inactiveColor = theme.brightness == Brightness.dark
-        ? Colors.grey.withOpacity(0.5)
-        : Colors.grey.shade600;
+    final color = isSelected ? activeColor : theme.textTheme.bodySmall?.color;
 
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         navigationShell.goBranch(
           index,
           initialLocation: index == navigationShell.currentIndex,
         );
       },
-      behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 70,
+        width: 64,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                if (isSelected)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: activeColor.withOpacity(0.4),
-                            blurRadius: 15,
-                            spreadRadius: -2,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                Icon(
-                  icon,
-                  size: 28,
-                  color: isSelected ? activeColor : inactiveColor,
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
+            Icon(icon, size: 24, color: color),
+            const SizedBox(height: 2),
             Text(
               label,
               textAlign: TextAlign.center,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.pressStart2p(
-                fontSize: 8,
-                color: isSelected ? activeColor : inactiveColor,
-                height: 1.5,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: color,
+                letterSpacing: 0.5,
               ),
             ),
           ],

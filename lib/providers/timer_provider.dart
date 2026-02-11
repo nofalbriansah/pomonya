@@ -4,6 +4,7 @@ import '../data/database_service.dart';
 import '../core/audio_service.dart';
 import 'currency_provider.dart';
 import 'settings_provider.dart';
+import 'stats_provider.dart';
 
 enum TimerStatus { initial, running, paused, finished }
 
@@ -50,7 +51,14 @@ class TimerNotifier extends AsyncNotifier<TimerState> {
 
   @override
   Future<TimerState> build() async {
-    final settings = await ref.watch(settingsProvider.future);
+    // We use read here to avoid resetting the timer when non-duration settings change.
+    // Duration changes explicitly call reset() via the SettingsNotifier.
+    final settings = await ref.read(settingsProvider.future);
+
+    ref.onDispose(() {
+      _ticker?.cancel();
+    });
+
     return TimerState(
       remainingSeconds: settings.focusDuration,
       initialDuration: settings.focusDuration,
@@ -139,6 +147,7 @@ class TimerNotifier extends AsyncNotifier<TimerState> {
     final dateStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     await DatabaseService.addFocusTime(dateStr, seconds);
+    ref.invalidate(statsProvider);
   }
 
   Future<void> _advancePhase() async {

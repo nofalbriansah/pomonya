@@ -6,32 +6,29 @@ class AppTheme {
   static ThemeData get darkTheme {
     final base = ThemeData.dark(useMaterial3: true);
     return base.copyWith(
-      scaffoldBackgroundColor: AppColors.darkBg,
+      scaffoldBackgroundColor: AppColors.backgroundDark,
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.electricBlue,
+        primary: AppColors.primary,
         onPrimary: Colors.black,
-        secondary: AppColors.neonFuchsia,
+        secondary: AppColors.accentPink,
         onSecondary: Colors.black,
         surface: AppColors.surfaceDark,
-        onSurface: AppColors.textPrimary,
+        onSurface: AppColors.textMainDark,
         surfaceContainer: AppColors.surfaceDark,
-        outline: AppColors.glassBorder,
-        tertiary: AppColors.neonPink,
+        outline: AppColors.borderDark,
+        tertiary: AppColors.accentPurple,
       ),
-      textTheme: _buildTextTheme(
-        AppColors.textPrimary,
-        AppColors.textSecondary,
-      ),
+      textTheme: _buildTextTheme(AppColors.textMainDark, AppColors.textSubDark),
       cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: AppColors.glassBorder, width: 1),
+          side: const BorderSide(color: AppColors.borderDark, width: 1),
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusM),
         ),
       ),
       dividerTheme: const DividerThemeData(
-        color: AppColors.glassBorder,
+        color: AppColors.borderDark,
         thickness: 1,
         space: AppSpacing.m,
       ),
@@ -41,32 +38,31 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData.light(useMaterial3: true);
     return base.copyWith(
-      scaffoldBackgroundColor: AppColors.lightBg,
+      scaffoldBackgroundColor: AppColors.backgroundLight,
       colorScheme: const ColorScheme.light(
-        primary: AppColors.electricBlue,
+        primary: AppColors.primary,
         onPrimary: Colors.white,
-        secondary: AppColors.neonFuchsia,
+        secondary: AppColors.primary,
         onSecondary: Colors.white,
         surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimaryLight,
+        onSurface: AppColors.textMainLight,
         surfaceContainer: AppColors.surfaceLight,
-        outline: AppColors.glassBorderLight,
-        tertiary: AppColors.neonPink,
+        outline: AppColors.borderLight,
       ),
       textTheme: _buildTextTheme(
-        AppColors.textPrimaryLight,
-        AppColors.textSecondaryLight,
+        AppColors.textMainLight,
+        AppColors.textSubLight,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surfaceLight,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: AppColors.glassBorderLight, width: 1),
+          side: const BorderSide(color: AppColors.borderLight, width: 1),
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusM),
         ),
       ),
       dividerTheme: const DividerThemeData(
-        color: AppColors.glassBorderLight,
+        color: AppColors.borderLight,
         thickness: 1,
         space: AppSpacing.m,
       ),
@@ -75,31 +71,40 @@ class AppTheme {
 
   static TextTheme _buildTextTheme(Color primaryColor, Color secondaryColor) {
     return TextTheme(
-      displayLarge: GoogleFonts.pressStart2p(color: primaryColor, fontSize: 24),
+      displayLarge: GoogleFonts.pressStart2p(color: primaryColor, fontSize: 48),
       displayMedium: GoogleFonts.pressStart2p(
         color: primaryColor,
-        fontSize: 20,
+        fontSize: 32,
       ),
       displaySmall: GoogleFonts.pressStart2p(color: primaryColor, fontSize: 14),
-      headlineMedium: GoogleFonts.spaceGrotesk(
+      headlineMedium: GoogleFonts.inter(
         color: primaryColor,
         fontSize: 24,
         fontWeight: FontWeight.bold,
       ),
-      titleLarge: GoogleFonts.spaceGrotesk(
+      headlineSmall: GoogleFonts.inter(
         color: primaryColor,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
-      titleMedium: GoogleFonts.spaceGrotesk(
+      titleLarge: GoogleFonts.inter(
+        color: primaryColor,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+      titleMedium: GoogleFonts.inter(
         color: primaryColor,
         fontSize: 16,
         fontWeight: FontWeight.w600,
       ),
-      bodyLarge: GoogleFonts.spaceGrotesk(color: primaryColor, fontSize: 16),
-      bodyMedium: GoogleFonts.spaceGrotesk(color: secondaryColor, fontSize: 14),
-      bodySmall: GoogleFonts.spaceGrotesk(color: secondaryColor, fontSize: 12),
-      labelLarge: GoogleFonts.pressStart2p(color: primaryColor, fontSize: 10),
+      bodyLarge: GoogleFonts.inter(color: primaryColor, fontSize: 16),
+      bodyMedium: GoogleFonts.inter(color: secondaryColor, fontSize: 14),
+      bodySmall: GoogleFonts.inter(color: secondaryColor, fontSize: 12),
+      labelLarge: GoogleFonts.inter(
+        color: primaryColor,
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }
